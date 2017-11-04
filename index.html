@@ -1,6 +1,162 @@
 <html lang="de">
-    <head></head>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Rentenversicherungs-Rechner</title>
+
+        <link rel="stylesheet" href="css/bulma.css">
+        <link rel="stylesheet" href="css/site.css">
+    </head>
     <body>
-        <h1>Hi!</h1>
+        <section class="section">
+            <div class="container rvinput">
+                <h1 class="title">Rentenversicherungs-Rechner für die Gleitzone (2017)</h1>
+                <div class="field is-horizontal">
+                    <div class="field-body">
+                        <div class="field has-addons">
+                            <div class="control">
+                                <input id="income" type="number" class="input required" placeholder="Stundenlohn" value="13.05">
+                            </div>
+                            <p class="control"><a class="button is-static">€/Stunde</a></p>
+                        </div>
+                                
+                        <div class="field has-addons">
+                            <div class="control">
+                                <input type="number" class="input required" id="hours" placeholder="Stunden pro Woche">
+                            </div>
+                            <p class="control"><a class="button is-static">Stunden</a></p>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <a class="button is-info" id="calcBtn">
+                                    Berechnen
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container" id="results"></div>
+        </section>
+        <section class="section">
+        </section>
+        <script src="js/jquery-3.2.1.min.js"></script>
+        <script>
+            $(document).ready(function(){
+                var counter = 0;
+                $("input.required").change(function() {
+                    validateInputs();
+                });
+                $("input.required").on("keyup", function() {
+                    validateInputs();
+                })
+
+                $("#calcBtn").on("click", function() {
+                    if(validateInputs()) {
+                        var hours = parseFloat($("#hours").val());
+                        var hourly = parseFloat($("#income").val());
+                        var income = hours * hourly * 4.348;
+                        var fictionalIncome = round((1.2802375 * income) - 238.201875, 2);
+                        var totalDue = round(fictionalIncome * 0.0935, 2) * 2;
+                        var employerPart = round(income * 0.0935, 2);
+                        var employeePart = round(totalDue - employerPart, 2);
+
+
+                        var id = "result" + counter;
+                        counter++;
+                        var resultCard = $("#resultProto>div").clone();
+                        if(income <= 450) {
+                            resultCard.find("tbody").append('<tr>\
+                                <th>Bei Verzicht auf Rentenversicherungsbeitrag</th>\
+                                <td class="grossIncome"></td>\
+                            </tr>');
+                        }
+                        resultCard.attr("id", id);
+                        resultCard.find(".grossIncome").text(round(income, 2) + "€");
+                        resultCard.find(".employerShare").text(employerPart + "€");
+                        resultCard.find(".employeeShare").text(employeePart + "€");
+                        resultCard.find(".totalDue").text(totalDue + "€");
+                        resultCard.find(".fictionalIncome").text(fictionalIncome + "€");
+                        resultCard.find(".netIncome").text(round(income - employeePart, 2) + "€");
+                        resultCard.find(".hours").text(hours);
+                        resultCard.find(".hourly").text(hourly);
+
+                        resultCard.find("a.delete").on("click", function(){
+                            $("#results #" + id).remove();
+                        });
+
+                        $("#results").append(resultCard);
+                    }
+                });
+
+                validateInputs();
+            });
+            
+            function round(value, exp) {
+                if (typeof exp === 'undefined' || +exp === 0)
+                    return Math.round(value);
+                
+                value = +value;
+                exp = +exp;
+                
+                if (isNaN(value) || !(typeof exp === 'number' && exp % 1 === 0))
+                    return NaN;
+                
+                // Shift
+                value = value.toString().split('e');
+                value = Math.round(+(value[0] + 'e' + (value[1] ? (+value[1] + exp) : exp)));
+                
+                // Shift back
+                value = value.toString().split('e');
+                return +(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp));
+            }
+
+            function validateInputs() {
+                var allGiven = $("input.required").map(function(i, e) {
+                    return $(e).val() != ""
+                }).toArray().every((e) => e);
+                if(allGiven)
+                    $("#calcBtn").removeAttr("disabled");
+                else
+                    $("#calcBtn").attr("disabled", true);
+                return allGiven;
+            }
+        </script>
+        <div style="display: none" id="resultProto">
+            <div class="box">
+                <div class="media-content">
+                    <div style="float: right;"><a class="delete"></a></div>
+                    <h6 class="title"><span class="hours"></span> Stunden à <span class="hourly"></span>€/Stunde</h6>
+                    <table class="table is-hoverable is-fullwidth">
+                        <tbody>
+                            <tr>
+                                <th>Brutto-Lohn</th>
+                                <td class="grossIncome"></td>
+                            </tr>
+                            <tr>
+                                <th>Fiktiver Lohn</th>
+                                <td class="fictionalIncome"></td>
+                            </tr>
+                            <tr>
+                                <th>Gesamter (reduzierter) Rentenversicherungsbeitrag</th>
+                                <td class="totalDue"></td>
+                            </tr>
+                            <tr>
+                                <th>Arbeitnehmer-Anteil</th>
+                                <td class="employeeShare"></td>
+                            </tr>
+                            <tr class="thickline-below">
+                                <th>Arbeitgeber-Anteil</th>
+                                <td class="employerShare"></td>
+                            </tr>
+                            <tr>
+                                <th>Netto-Lohn</th>
+                                <td class="netIncome"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </body>
 </html>

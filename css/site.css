@@ -1,0 +1,12 @@
+.table tr.thickline-below  th, .table tr.thickline-below td {
+    border-bottom-width: 2px;
+    border-bottom-color: darkgrey;
+}
+
+.rvinput {
+    margin-bottom: 20px;
+}
+
+.field{
+    flex-grow: 0  !IMPORTANT;
+}
