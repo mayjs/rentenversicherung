@@ -97,7 +97,7 @@
                     resultCard.find(".totalDue").text(totalDue.toFixed(2) + "€");
                     resultCard.find(".fictionalIncome").text(fictionalIncome.toFixed(2) + "€");
                     resultCard.find(".netIncome").text(round(income - employeePart, 2).toFixed(2) + "€");
-                    resultCard.find(".hours").text(hours.toFixed(2));
+                    resultCard.find(".hours").text(hours);
                     resultCard.find(".hourly").text(hourly.toFixed(2));
 
                     resultCard.find("a.delete").on("click", function(){
