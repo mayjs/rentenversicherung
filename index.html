@@ -55,11 +55,23 @@
                     if(validateInputs()) {
                         var hours = parseFloat($("#hours").val());
                         var hourly = parseFloat($("#income").val());
-                        var income = hours * hourly * 4.348;
-                        var fictionalIncome = round((1.2802375 * income) - 238.201875, 2);
-                        var totalDue = round(fictionalIncome * 0.0935, 2) * 2;
-                        var employerPart = round(income * 0.0935, 2);
-                        var employeePart = round(totalDue - employerPart, 2);
+                        var income = round(hours * hourly * 4.348, 2);
+                        if(income > 450) {
+                            var fictionalIncome = round((1.2802375 * income) - 238.201875, 2);
+                            var totalDue = round(fictionalIncome * 0.0935, 2) * 2;
+                            var employerPart = round(income * 0.0935, 2);
+                            var employeePart = round(totalDue - employerPart, 2);
+                        } else if(income >= 175) {
+                            var fictionalIncome = income;
+                            var totalDue = round(0.187 * income, 2);
+                            var employerPart = round(0.15 * income, 2);
+                            var employeePart = round(totalDue - employerPart, 2);
+                        } else {
+                            var fictionalIncome = income;
+                            var employerPart = round(0.15 * income, 2);
+                            var employeePart = 32.73;
+                            var totalDue = round(employeePart + employerPart, 2);
+                        }
 
 
                         var id = "result" + counter;
