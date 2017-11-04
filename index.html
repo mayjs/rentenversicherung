@@ -42,68 +42,72 @@
         </section>
         <script src="js/jquery-3.2.1.min.js"></script>
         <script>
+            var counter = 0;
             $(document).ready(function(){
-                var counter = 0;
                 $("input.required").change(function() {
                     validateInputs();
                 });
-                $("input.required").on("keyup", function() {
+                $("input.required").on("keyup", function(ev) {
                     validateInputs();
+                    if(ev.which == 13)
+                        calculate();
                 })
 
-                $("#calcBtn").on("click", function() {
-                    if(validateInputs()) {
-                        var hours = parseFloat($("#hours").val());
-                        var hourly = parseFloat($("#income").val());
-                        var income = round(hours * hourly * 4.348, 2);
-                        if(income > 450) {
-                            var fictionalIncome = round((1.2802375 * income) - 238.201875, 2);
-                            var totalDue = round(fictionalIncome * 0.0935, 2) * 2;
-                            var employerPart = round(income * 0.0935, 2);
-                            var employeePart = round(totalDue - employerPart, 2);
-                        } else if(income >= 175) {
-                            var fictionalIncome = income;
-                            var totalDue = round(0.187 * income, 2);
-                            var employerPart = round(0.15 * income, 2);
-                            var employeePart = round(totalDue - employerPart, 2);
-                        } else {
-                            var fictionalIncome = income;
-                            var employerPart = round(0.15 * income, 2);
-                            var employeePart = 32.73;
-                            var totalDue = round(employeePart + employerPart, 2);
-                        }
-
-
-                        var id = "result" + counter;
-                        counter++;
-                        var resultCard = $("#resultProto>div").clone();
-                        if(income <= 450) {
-                            resultCard.find("tbody").append('<tr>\
-                                <th>Bei Verzicht auf den Beitrag</th>\
-                                <td class="grossIncome"></td>\
-                            </tr>');
-                        }
-                        resultCard.attr("id", id);
-                        resultCard.find(".grossIncome").text(round(income, 2) + "€");
-                        resultCard.find(".employerShare").text(employerPart + "€");
-                        resultCard.find(".employeeShare").text(employeePart + "€");
-                        resultCard.find(".totalDue").text(totalDue + "€");
-                        resultCard.find(".fictionalIncome").text(fictionalIncome + "€");
-                        resultCard.find(".netIncome").text(round(income - employeePart, 2) + "€");
-                        resultCard.find(".hours").text(hours);
-                        resultCard.find(".hourly").text(hourly);
-
-                        resultCard.find("a.delete").on("click", function(){
-                            $("#results #" + id).remove();
-                        });
-
-                        $("#results").prepend(resultCard);
-                    }
-                });
+                $("#calcBtn").on("click", calculate);
 
                 validateInputs();
             });
             
+            function calculate() {
+                if(validateInputs()) {
+                    var hours = parseFloat($("#hours").val());
+                    var hourly = parseFloat($("#income").val());
+                    var income = round(hours * hourly * 4.348, 2);
+                    if(income > 450) {
+                        var fictionalIncome = round((1.2802375 * income) - 238.201875, 2);
+                        var totalDue = round(fictionalIncome * 0.0935, 2) * 2;
+                        var employerPart = round(income * 0.0935, 2);
+                        var employeePart = round(totalDue - employerPart, 2);
+                    } else if(income >= 175) {
+                        var fictionalIncome = income;
+                        var totalDue = round(0.187 * income, 2);
+                        var employerPart = round(0.15 * income, 2);
+                        var employeePart = round(totalDue - employerPart, 2);
+                    } else {
+                        var fictionalIncome = income;
+                        var employerPart = round(0.15 * income, 2);
+                        var employeePart = 32.73;
+                        var totalDue = round(employeePart + employerPart, 2);
+                    }
+
+
+                    var id = "result" + counter;
+                    counter++;
+                    var resultCard = $("#resultProto>div").clone();
+                    if(income <= 450) {
+                        resultCard.find("tbody").append('<tr>\
+                            <th>Bei Verzicht auf den Beitrag</th>\
+                            <td class="grossIncome"></td>\
+                        </tr>');
+                    }
+                    resultCard.attr("id", id);
+                    resultCard.find(".grossIncome").text(round(income, 2) + "€");
+                    resultCard.find(".employerShare").text(employerPart + "€");
+                    resultCard.find(".employeeShare").text(employeePart + "€");
+                    resultCard.find(".totalDue").text(totalDue + "€");
+                    resultCard.find(".fictionalIncome").text(fictionalIncome + "€");
+                    resultCard.find(".netIncome").text(round(income - employeePart, 2) + "€");
+                    resultCard.find(".hours").text(hours);
+                    resultCard.find(".hourly").text(hourly);
+
+                    resultCard.find("a.delete").on("click", function(){
+                        $("#results #" + id).remove();
+                    });
+
+                    $("#results").prepend(resultCard);
+                }
+            }
+
             function round(value, exp) {
                 if (typeof exp === 'undefined' || +exp === 0)
                     return Math.round(value);
